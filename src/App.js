@@ -46,9 +46,6 @@ function App()  {
             player: state.player,
             data:state.data,
           })
-          // state.color = state.color === "black" ? "red" : "blue"
-          // setState({...state,
-          // color: state.color})
         }
         pos = x;
         checkWin();
@@ -137,7 +134,7 @@ function App()  {
       break;
   } 
   for(var i = 1; i <= 5 ; i++) { 
-    if (state.data[pos] == state.data[pos - (size+1)*i])
+    if (state.data[pos] == state.data[pos - (size-1)*i])
     {
         addcheoup++;      
     }
@@ -162,7 +159,9 @@ for(var i = 1; i <= 5 ; i++) {
 } 
 var check1=0;
 var check2=0;
-      if(addright+addleft >= 4)
+      if( state.data[pos] == "x")
+      {
+        if(addright+addleft >= 4)
       { 
         for(var i = 1;i <=(size-5);i++)
         {
@@ -235,6 +234,83 @@ var check2=0;
           setWin(true);
       }
       }
+
+      if( state.data[pos] == "o")
+      {
+        if(addright+addleft >= 4)
+      { 
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos+(i+addright)] == "x")
+             check1++;
+        }
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos -(i+addleft)] == "x")
+             check2++;
+        }
+        if(check1+check2 > 1)
+          {setWin(false);
+          check1 =0;check2=0;}
+        else 
+          setWin(true);
+      }
+      else if(addup +adddown >= 4)
+      {
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos-(i+addup)*size] == "x")
+             check1++;
+        }
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos + (i+adddown)*size] == "x")
+             check2++;
+        }
+        if(check1+check2 > 1)
+          {setWin(false);
+          check1 =0;check2=0;}
+        else 
+          setWin(true);
+      }
+      else if(addcheodown +addcheoup >= 4)
+      {
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos-(i+addcheoup)*(size+1)] == "x")
+             check1++;
+        }
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos +(i+addcheodown)*(size-1)] == "x")
+             check2++;
+        }
+        if(check1+check2 > 1)
+          {setWin(false);
+          check1 =0;check2=0;}
+        else 
+          setWin(true);
+      }
+      else if(addngcdown +addngcup >= 4)
+      {
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos-(i+addngcup)*(size+1)] == "x")
+             check1++;
+        }
+        for(var i = 1;i <=(size-5);i++)
+        {
+          if(state.data[pos +(i+addngcdown)*(size+1)] == "x")
+             check2++;
+        }
+        if(check1+check2 > 1)
+          {setWin(false);
+          check1 =0;check2=0;}
+        else 
+          setWin(true);
+      }
+      }
+    }
       function Notice() {
         var namewin;
         if (state.player == "o")
@@ -256,7 +332,6 @@ var check2=0;
             </div>
         )
       }
-
        function Countdown() {
         
       
