@@ -1,9 +1,9 @@
-import { getValue } from '@testing-library/user-event/dist/utils';
-import { StyleHTMLAttributes } from 'react';
+
 import { useState } from 'react';
 import './App.css';
-import React, { useRef, useEffect } from 'react'
-
+import React, { useRef, useEffect } from 'react';
+import socketIOClient from "socket.io-client";
+const host = "http://localhost:3000";
 
 
 
@@ -29,29 +29,51 @@ function App()  {
     winner: null,
     data: new Array ,
   });
+  const [id, setId] = useState();
+  const [idclient, setIdclient] = useState();
   var pos;
-  const buttons = new Array(0,1);
-  for(var i = 2; i <= (size*size-1) ; i++){
+  const buttons = new Array(0)
+  for(var i = 1; i <= (size*size-1) ; i++){
     buttons.push(i);
   }
+  const socketRef = useRef();
+  useEffect(() => {
+    socketRef.current = socketIOClient.connect(host)
+
+    socketRef.current.on('getId', data => {
+        setIdclient(data)
+        socketRef.current.emit('sendIdClient', data);
+    })
+   
+    
+
+    socketRef.current.on('sendIdServer', ids => {
+      if (idclient != ids)
+      {setId(ids)}
+    }
+  );
+
+
+    socketRef.current.on('sendDataServer', dataGot => {
+      setState(dataGot.data)
+    })
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+  const sendMessage = () => {
+    if(state !== null) {
+      const msg =  state
+      socketRef.current.emit('sendDataClient', msg);
+    }
+  }
+  const [style,setStyle] = useState()
   return (
     <div>
     <div className='app'>
-       {buttons.map(x => <button className="button" onClick={ ()=> {
-        if(!state.data[x] ){
-          state.data[x] = state.player;
-          state.player = state.player === "x" ? "o" : "x"
-          setState({
-            ...state,
-            player: state.player,
-            data:state.data,
-          })
-        }
-        pos = x;
-        checkWin();
-        addarea(x);
-       }}   style={{color: state.data[x] === "x" ? "red" : "blue"}}  >  {state.data[x]}  </button> ) 
-      }
+       {buttons.map((x,index) => <button key={index} className="button" id={`${style == "setstyle" && "setstyle"}`} onClick={() => buttonclick(x)} style={{color: state.data[x] === "x" ? "red" : "blue"}}  >  {state.data[x]}  </button>)}
+      
       {win === true && <Notice/>}
 
       </div>
@@ -75,6 +97,33 @@ function App()  {
       <div><Countdown/></div>
     </div>
   );
+ 
+  function buttonclick(x) {
+    if(id != idclient)
+          {
+            if(state.data[x] == null){
+              state.data[x] = state.player;
+              state.player = state.player === "x" ? "o" : "x";
+              setState({
+                ...state,
+                player: state.player,
+                data:state.data,
+              });
+              sendMessage()
+            pos = x;
+            checkWin();
+            addarea(x);
+            setturn(); 
+            }
+            
+            
+            
+          };
+
+  }
+  function setturn(){
+    socketRef.current.emit('sendIdClient', idclient);
+  }
       function addarea(x) {
         const arr = new Array
         for(i=1 ; i<= size;i++)
