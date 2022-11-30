@@ -1,7 +1,6 @@
 
 body{
-  background-image: url(https://choibaidoithuong.net/wp-content/uploads/2020/10/game-co-caro-online.jpg);
-  background-color: #cccccc;
+  background-color: #ccc;
 }
 .app {
   display: flex;
@@ -113,6 +112,44 @@ h1 {
   font-weight: 500;
 
 }
-#setstyle {
-  visibility: hidden;
+.box {
+  width: 100vw;
+  height: 100vh;
+  justify-content: space-around;
+  align-items: center;
+  display: flex;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.form-control {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.btn {
+  width: 100px;
+  height: 30px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 15px;
+}
+
+.box form {
+  width: 30vw;
+  height: 30vh;
+  background-color: red;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+}
+.box input {
+  border-radius: 3px;
+  border: none;
+  height: 20px;
+
 }

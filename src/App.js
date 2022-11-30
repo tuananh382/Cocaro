@@ -9,11 +9,9 @@ const host = "http://localhost:3000";
 
 
 function App()  {
-
   const Ref = useRef(null);
   const [timer, setTimer] = useState('20:00');
   const [inputValue, setInputValue] = useState("")
-
   const handleInputChange = (event) => {
     setInputValue(event.target.value)
   }
@@ -22,6 +20,7 @@ function App()  {
   const handleInputChange1 = (event) => {
     setInputValue1(event.target.value)
   }
+  const [winner, setWinner] = useState(false)
   const [size, setSize] = useState(20)
   const [win, setWin] = useState(false)
   const [state, setState] = useState({
@@ -33,7 +32,7 @@ function App()  {
   const [idclient, setIdclient] = useState();
   var pos;
   const buttons = new Array(0)
-  for(var i = 1; i <= (size*size-1) ; i++){
+  for(var i = 1; i <= (size*size) ; i++){
     buttons.push(i);
   }
   const socketRef = useRef();
@@ -44,20 +43,14 @@ function App()  {
         setIdclient(data)
         socketRef.current.emit('sendIdClient', data);
     })
-   
-    
-
     socketRef.current.on('sendIdServer', ids => {
       if (idclient != ids)
       {setId(ids)}
     }
   );
-
-
     socketRef.current.on('sendDataServer', dataGot => {
       setState(dataGot.data)
     })
-
     return () => {
       socketRef.current.disconnect();
     };
@@ -68,37 +61,7 @@ function App()  {
       socketRef.current.emit('sendDataClient', msg);
     }
   }
-  const [style,setStyle] = useState()
-  return (
-    <div>
-    <div className='app'>
-       {buttons.map((x,index) => <button key={index} className="button" id={`${style == "setstyle" && "setstyle"}`} onClick={() => buttonclick(x)} style={{color: state.data[x] === "x" ? "red" : "blue"}}  >  {state.data[x]}  </button>)}
-      
-      {win === true && <Notice/>}
-
-      </div>
-      <div className='player'>
-         <div className='player1'>
-            <div className='name'>
-                <p>Name Player 1</p>
-                <input className='buttonname' value={inputValue} onChange={handleInputChange} placeholder="Type..." type="text" />
-                <p>Bạn đánh X nhé !!</p>
-    
-            </div>
-         </div>
-         <div className='player2'>
-            <div className='name'>
-                <p>Name Player 2</p>
-                <input className='buttonname' value={inputValue1} onChange={handleInputChange1} placeholder="Type..." type="text" />
-                <p>Bạn đánh O nhé !!</p>
-            </div>
-         </div>
-      </div>
-      <div><Countdown/></div>
-    </div>
-  );
- 
-  function buttonclick(x) {
+    function buttonclick(x) {
     if(id != idclient)
           {
             if(state.data[x] == null){
@@ -114,16 +77,22 @@ function App()  {
             checkWin();
             addarea(x);
             setturn(); 
-            }
-            
-            
-            
+            checkWinner(win)                                    
+            } 
           };
-
-  }
-  function setturn(){
+    }
+      function setturn(){
     socketRef.current.emit('sendIdClient', idclient);
-  }
+    }
+    function checkWinner(win) {
+      if(win == true)
+      {
+        socketRef.current.emit("sendWinClient", win)
+      }
+    socketRef.current.on("sendWinSever", win => {
+      setWinner(win)
+    })
+    }
       function addarea(x) {
         const arr = new Array
         for(i=1 ; i<= size;i++)
@@ -210,7 +179,7 @@ var check1=0;
 var check2=0;
       if( state.data[pos] == "x")
       {
-        if(addright+addleft >= 4)
+        if(addright+addleft >= 3)
       { 
         for(var i = 1;i <=(size-5);i++)
         {
@@ -228,7 +197,7 @@ var check2=0;
         else 
           setWin(true);
       }
-      else if(addup +adddown >= 4)
+      else if(addup +adddown >= 3)
       {
         for(var i = 1;i <=(size-5);i++)
         {
@@ -246,7 +215,7 @@ var check2=0;
         else 
           setWin(true);
       }
-      else if(addcheodown +addcheoup >= 4)
+      else if(addcheodown +addcheoup >= 3)
       {
         for(var i = 1;i <=(size-5);i++)
         {
@@ -264,7 +233,7 @@ var check2=0;
         else 
           setWin(true);
       }
-      else if(addngcdown +addngcup >= 4)
+      else if(addngcdown +addngcup >= 3)
       {
         for(var i = 1;i <=(size-5);i++)
         {
@@ -286,7 +255,7 @@ var check2=0;
 
       if( state.data[pos] == "o")
       {
-        if(addright+addleft >= 4)
+        if(addright+addleft >= 3)
       { 
         for(var i = 1;i <=(size-5);i++)
         {
@@ -304,7 +273,7 @@ var check2=0;
         else 
           setWin(true);
       }
-      else if(addup +adddown >= 4)
+      else if(addup +adddown >= 3)
       {
         for(var i = 1;i <=(size-5);i++)
         {
@@ -322,7 +291,7 @@ var check2=0;
         else 
           setWin(true);
       }
-      else if(addcheodown +addcheoup >= 4)
+      else if(addcheodown +addcheoup >= 3)
       {
         for(var i = 1;i <=(size-5);i++)
         {
@@ -340,7 +309,7 @@ var check2=0;
         else 
           setWin(true);
       }
-      else if(addngcdown +addngcup >= 4)
+      else if(addngcdown +addngcup >= 3)
       {
         for(var i = 1;i <=(size-5);i++)
         {
@@ -366,22 +335,21 @@ var check2=0;
           namewin = inputValue;
         else
           namewin = inputValue1;
-          
-        var timer1 = new Date();
-        
 
+        console.log(win)
+        console.log(winner)
         return (
             
             <div className="notice">
                 <h1>{namewin}</h1>
-                <h1>win</h1>
+                <h1>{win === winner ? "You win" : "you lose"}</h1>
                 {clearInterval(Ref.current)}
                 <h1>{timer}</h1>
                 <buttons className="again" onClick={() => {window.location.reload(true)}}>Again</buttons>
             </div>
         )
       }
-       function Countdown() {
+      function Countdown() {
         
       
       
@@ -431,6 +399,62 @@ var check2=0;
             </div>
         )
     }
+    return (
+      <div>
+        {/* <Signin/> */}
+      <div className='app'>
+        {winner === true && <Notice/>}
+        {buttons.map((x,index) => <button key={index} className="button" onClick={() => buttonclick(x)} style={{color: state.data[x] === "x" ? "red" : "blue"}}  >  {state.data[x]}  </button>)}
+      </div>
+        <div className='player'>
+           <div className='player1'>
+              <div className='name'>
+                  <p>Name Player 1</p>
+                  <input className='buttonname' value={inputValue} onChange={handleInputChange} placeholder="Type..." type="text" />
+                  <p>Bạn đánh X nhé !!</p>
+      
+              </div>
+           </div>
+           <div className='player2'>
+              <div className='name'>
+                  <p>Name Player 2</p>
+                  <input className='buttonname' value={inputValue1} onChange={handleInputChange1} placeholder="Type..." type="text" />
+                  <p>Bạn đánh O nhé !!</p>
+              </div>
+           </div>
+        </div>
+        <div><Countdown/></div>
+      </div>
+    );
+      function Signin() {
+        return (
+          <div className='box'>
+            <form>
+					    <div class="form-control">
+                <label for="username">Username</label>
+                <input
+                  type="text"
+                  name="username"
+                  id="username"
+                  placeholder="Enter username..."
+                  required
+                />
+					    </div>
+					    <div class="form-control">
+                <label for="room">Room</label>
+                <input
+                  type="text"
+                  name="room"
+                  id="room"
+                  placeholder="Enter room..."
+                  required
+                />
+					    </div>
+					    <button type="submit" class="btn">Join Chat</button>
+				    </form>
+          </div>
+        )
+      }
 }
 
 export default App;

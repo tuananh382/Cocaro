@@ -19,6 +19,10 @@ socketIo.on("connection", (socket) => {
     socketIo.emit("sendIdServer", ids );
   })
 
+  socket.on("sendWinClient", win => {
+    socketIo.emit("sendWinSever", win)
+  })
+
   socket.on("sendDataClient", function(data) {
     socketIo.emit("sendDataServer", { data });
   })
